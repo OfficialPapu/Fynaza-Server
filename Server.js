@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const ConnectDB = require('./config/DBConnection');
 const { MainCategoryRouter } = require('./routes/CategoryRoute');
+const { ProductRouter } = require('./routes/ProductRoute');
 require('dotenv/config');
 
 
@@ -17,17 +18,15 @@ app.options("*", cors());
 
 
 // Middleware for parsing URL-encoded form data (optional if you're expecting form submissions)
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: false }));
 
 
 //Category
-app.use("/api/maincategory", MainCategoryRouter)
+app.use("/api/maincategory", MainCategoryRouter);
 
-
-// app.use("/api/subcategory", (req, res) => {
-
-// })
+//Product
+app.use('/api/product', ProductRouter);
 
 const startServer = async () => {
     try {
