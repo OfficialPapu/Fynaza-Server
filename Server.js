@@ -1,13 +1,12 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const ConnectDB = require('./config/DBConnection');
 const { MainCategoryRouter } = require('./routes/CategoryRoute');
-const { ProductRouter } = require('./routes/ProductRoute');
+const { ProductRouter} = require('./routes/ProductRoute');
+const multer = require('multer');
 require('dotenv/config');
-
 
 ConnectDB();
 
@@ -18,7 +17,7 @@ app.options("*", cors());
 
 
 // Middleware for parsing URL-encoded form data (optional if you're expecting form submissions)
-app.use(express.json()); 
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 
@@ -28,6 +27,9 @@ app.use("/api/maincategory", MainCategoryRouter);
 //Product
 app.use('/api/product', ProductRouter);
 
+
+
+app.use(express.static('public'))
 const startServer = async () => {
     try {
         await ConnectDB();
