@@ -1,17 +1,14 @@
-const { MainCategorySchema, SubCategorySchema } = require('../models/CategoryModel')
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const app = express();
-// MainCategory
-const GetMainCategorie = async (req, res) => {
+const { CategoriesSchema } = require('../models/CategoryModel')
+const { upload } = require("../config/MulterConfig");
+const { getFormattedPath, createSlug } = require("../config/UrlConfig");
+
+const GetCategories = async (req, res) => {
     try {
-        const MainCategoryList = await MainCategorySchema.find();
-        if (MainCategoryList.length === 0) {
+        const Categories = await CategoriesSchema.find();
+        if (Categories.length === 0) {
             return res.status(404).json({ message: "No categories found" });
         }
-        res.status(200).json(MainCategoryList);
+        res.status(200).json(Categories);
 
     } catch (error) {
         console.error("Error fetching categories:", error);
@@ -19,54 +16,27 @@ const GetMainCategorie = async (req, res) => {
     }
 }
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const year = new Date().getFullYear();
-        const month = (new Date().getMonth() + 1).toString().padStart(2, '0');
-        const uploadDir = path.join(__dirname, `../Media/Images/${year}/${month}`);
 
-        fs.mkdirSync(uploadDir, { recursive: true });
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const fileExtension = path.extname(file.originalname);
-        const filename = `${Date.now()}${fileExtension}`;
-        cb(null, filename);
-    }
-});
 
-const upload = multer({ storage });
-
-const CreateMainCategory = async (req, res) => {
-    try {
-        
-        
-        const { name } = req.body;
-        console.log(req.body);
-        
-        // Use multer's single file upload feature
-        upload.single('image')(req, res, async (err) => {
+const AddCategory = async (req, res) => {
+    upload.single('Image')(req, res, async (err) => {
+        try {
             if (err) {
                 return res.status(400).json({ message: "Error uploading file" });
             }
-            // Check if the name or image is missing
-            if (!name || !req.file) {
-                return res.status(400).json({ message: "All fields are mandatory" });
-            }
-
-            const imagePath = `${new Date().getFullYear()}/${(new Date().getMonth() + 1).toString().padStart(2, '0')}/${req.file.filename}`;
-
-            // Create the new category and save it
-            const newCategory = new MainCategorySchema({ name, image: imagePath });
+            const { Category, Attribute } = req.body;
+            const Slug = createSlug(Attribute);
+            const Image = getFormattedPath(req.file.path);
+            const newCategory = new CategoriesSchema({ Category, CategoryAttribute:Attribute, Slug, Image });
             const savedCategory = await newCategory.save();
 
-            // Respond with the saved category
             res.status(201).json(savedCategory);
-        });
-    } catch (error) {
-        console.error("Error creating category:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
+        } catch (error) {
+            console.error("Error creating category:", error);
+            res.status(500).json({ message: "Internal Server Error" });
+        }
+
+    });
 };
 
-module.exports = { GetMainCategorie, CreateMainCategory }
+module.exports = { GetCategories, AddCategory }
