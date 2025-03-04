@@ -28,9 +28,8 @@ const AddCategory = async (req, res) => {
             const Slug = createSlug(Attribute);
             const Image = getFormattedPath(req.file.path);
             const newCategory = new CategoriesSchema({ Category, CategoryAttribute:Attribute, Slug, Image });
-            const savedCategory = await newCategory.save();
-
-            res.status(201).json(savedCategory);
+            await newCategory.save();
+            res.status(200).json({ success: true });
         } catch (error) {
             console.error("Error creating category:", error);
             res.status(500).json({ message: "Internal Server Error" });

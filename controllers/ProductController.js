@@ -8,7 +8,7 @@ const GetProductBySlug = async (req, res) => {
         let { Slug } = req.params;
         const product = await ProductSchema.find({ Slug: Slug }).populate('CategoryID', 'CategoryAttribute')
             .populate('BrandID', 'CategoryAttribute');
-        res.status(200).json( product );
+        res.status(200).json(product);
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -45,8 +45,8 @@ const AddProduct = (req, res) => {
             }
         });
 
-        const SaveProduct = await NewProduct.save();
-        res.json({ SaveProduct });
+        await NewProduct.save();
+        res.status(200).json({ success: true });
     });
 
 }
@@ -68,6 +68,7 @@ const TiptapMediaUpload = (req, res) => {
 
 const GetProducts = async (req, res) => {
     try {
+        
         const products = await ProductSchema.find().populate('CategoryID', 'CategoryAttribute').populate('BrandID', 'CategoryAttribute');
         if (products.length === 0) {
             return res.status(404).json({ message: "Product not found" });

@@ -4,13 +4,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const ConnectDB = require('./config/DBConnection');
 const { CategoryRouter } = require('./routes/CategoryRoute');
-const { ProductRouter} = require('./routes/ProductRoute');
+const { ProductRouter } = require('./routes/ProductRoute');
 const bodyParser = require('body-parser');
+const { SecureRouter } = require('./routes/SecureRoutes');
 require('dotenv/config');
-
 ConnectDB();
-
-
 app.use(cors());
 app.options("*", cors());
 
@@ -20,6 +18,8 @@ app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json())
+app.use(express.static('public'))
+app.use('/', SecureRouter);
 
 //Category
 app.use("/api/categories", CategoryRouter);
@@ -29,7 +29,6 @@ app.use('/api/product', ProductRouter);
 
 
 
-app.use(express.static('public'))
 const startServer = async () => {
     try {
         await ConnectDB();
